@@ -21,6 +21,7 @@ for i_SNR, SNRdB in enumerate(SNRdBs):
         tx_error_symbols = []
         hard_error_symbols = []
         msg_symbol = np.random.randint(2, size=int(N_frame*b))
+        print(msg_symbol)
         tx_bits = msg_symbol
         tx_sym = mapper(tx_bits, b, N_frame)
         X = tx_sym
@@ -33,7 +34,11 @@ for i_SNR, SNRdB in enumerate(SNRdBs):
         N = (np.random.normal(size=X.shape) + np.random.normal(size=X.shape) * 1j) * sigma
         R = H * X + N
         rx_sym = R / H
+        print(rx_sym)
+        print(rx_sym[0].real)
+        print(rx_sym[0].imag)
         hard_rx_bits = harddemapper(rx_sym)
+        print(hard_rx_bits)
         soft_rx_bits = softdemapper(rx_sym)
         # Keep error of each i_packet then we calculate BER
         hard_error = sum(abs(tx_bits - hard_rx_bits))
