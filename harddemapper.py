@@ -40,5 +40,5 @@ def harddemapper(rx_sym):
         i_real=i.real
         i_image=i.imag
         temp=list(map(lambda x: side(x.real - i_real,x.imag - i_image),mapper_dict1))
-        result.append(mapper_dict[temp.index(min(temp))])
-    return result
+        result.extend(mapper_dict[temp.index(min(temp))])
+    return np.array(result)

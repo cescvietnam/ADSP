@@ -46,5 +46,6 @@ for i_SNR, SNRdB in enumerate(SNRdBs):
             tx_error_symbols = np.logical_and(tx_error_symbols, rx_sym)
             hard_error_symbols = np.logical_and(hard_error_symbols, rx_sym)
         soft_error = sum(abs(tx_bits - soft_rx_bits))
-        hard_errors[i_packet, 0] = sum(hard_error)
-        soft_errors[i_packet, 0] = sum(soft_error)
+        #hard_errors[i_packet, 0] = sum(hard_error)
+        #soft_errors[i_packet, 0] = sum(soft_error)
+        
