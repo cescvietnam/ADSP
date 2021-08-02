@@ -31,7 +31,7 @@ for i_SNR, SNRdB in enumerate(SNRdBs):
         if channel == 'rayleigh':
             H = (np.random.standard_normal(N_frame) + np.random.standard_normal(N_frame) * 1j) / math.sqrt(2)
         elif channel == 'awgn':
-            H = np.array([1, 0]).T * N_frame # To be checked
+            H = np.matlib.repmat([1,0],N_frame,1) # To be checked
         else:
             raise ValueError('This channel is not supported')
         N = (np.random.standard_normal(N_frame) + np.random.standard_normal(N_frame) * 1j) * sigma
