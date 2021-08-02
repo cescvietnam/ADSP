@@ -22,5 +22,5 @@ def mapper(tx_bits, b, N_frame):
                    (1, 1, 1, 1): +1 + 1 * 1j}
     for i in range(0, N_frame, b):
         chunk = tuple(tx_bits[i:i + b])
-        result[int(i/b), 0] = mapper_dict[chunk]
+        result[int(i/b)] = mapper_dict[chunk]
     return result
