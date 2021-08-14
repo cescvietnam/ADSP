@@ -4,6 +4,7 @@ from mapper import mapper
 from harddemapper import harddemapper
 from softdemapper import softdemapper
 import matplotlib.pyplot as plt
+import time
 
 N_packet = 100000
 N_frame = 1
@@ -28,6 +29,7 @@ for i_SNR, SNRdB in enumerate(SNRdBs):
         tx_bits = msg_symbol
         tx_sym = mapper(tx_bits, b, N_frame)
         X = tx_sym
+        X=np.fft.ifft(X)
         if channel == 'rayleigh':
             H = (np.random.standard_normal(N_frame) + np.random.standard_normal(N_frame) * 1j) / math.sqrt(2)
         elif channel == 'awgn':
@@ -37,6 +39,7 @@ for i_SNR, SNRdB in enumerate(SNRdBs):
         N = (np.random.standard_normal(N_frame) + np.random.standard_normal(N_frame) * 1j) * sigma
         R = H * X + N
         rx_sym = R / H
+        rx_sym=np.fft.fft(rx_sym)
         hard_rx_bits = harddemapper(rx_sym)
         soft_rx_bits = softdemapper(rx_sym)
         # Keep error of each i_packet then we calculate BER
