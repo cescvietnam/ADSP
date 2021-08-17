@@ -5,6 +5,7 @@ from harddemapper import harddemapper
 from softdemapper import softdemapper
 import matplotlib.pyplot as plt
 import time
+from convolutional_encode import conv_encoder
 
 N_packet = 100000
 N_frame = 1
@@ -26,7 +27,7 @@ for i_SNR, SNRdB in enumerate(SNRdBs):
     hard_error_symbols = []
     for i_packet in range(N_packet):
         msg_symbol = np.random.randint(2, size=N_frame * b)
-        tx_bits = msg_symbol
+        tx_bits ,state= conv_encoder(msg_symbol)
         tx_sym = mapper(tx_bits, b, N_frame)
         X = tx_sym
         X=np.fft.ifft(X,N_frame)
