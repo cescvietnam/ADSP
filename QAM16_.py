@@ -6,8 +6,8 @@ from softdemapper import softdemapper
 import matplotlib.pyplot as plt
 import time
 
-N_packet = 640000
-N_frame = 1
+N_packet = 10000
+N_frame = 64
 M = 16
 b = int(math.log2(M))
 SNRdBs = np.arange(0, 45, 5)
@@ -16,8 +16,6 @@ plotconst = 'on'
 
 hard_BER = np.zeros(len(SNRdBs))
 soft_BER = np.zeros(len(SNRdBs))
-soft_time = 0
-hard_time = 0
 # Send N_packet with different SNRdB, range +5
 for i_SNR, SNRdB in enumerate(SNRdBs):
     print('Finished {:.2f} %'.format(i_SNR / len(SNRdBs) * 100))
@@ -29,8 +27,10 @@ for i_SNR, SNRdB in enumerate(SNRdBs):
     for i_packet in range(N_packet):
         msg_symbol = np.random.randint(2, size=N_frame * b)
         tx_bits = msg_symbol
+        #tx_bits ,state= conv_encoder(msg_symbol)
         tx_sym = mapper(tx_bits, b, N_frame)
         X = tx_sym
+        X=np.fft.ifft(X,N_frame)
         if channel == 'rayleigh':
             H = (np.random.standard_normal(N_frame) + np.random.standard_normal(N_frame) * 1j) / math.sqrt(2)
         elif channel == 'awgn':
@@ -40,13 +40,9 @@ for i_SNR, SNRdB in enumerate(SNRdBs):
         N = (np.random.standard_normal(N_frame) + np.random.standard_normal(N_frame) * 1j) * sigma
         R = H * X + N
         rx_sym = R / H
-        t1 = time.time()
+        rx_sym=np.fft.fft(rx_sym,N_frame)
         hard_rx_bits = harddemapper(rx_sym)
-        t2 = time.time()
         soft_rx_bits = softdemapper(rx_sym)
-        t3 = time.time()
-        soft_time = soft_time + t3 - t2
-        hard_time = hard_time + t2 - t1
         # Keep error of each i_packet then we calculate BER
         hard_error = sum(abs(tx_bits - hard_rx_bits))
         if hard_error > 0:
@@ -78,21 +74,16 @@ for i_SNR, SNRdB in enumerate(SNRdBs):
             plt.xlim([-10, 10])
             plt.ylim([-10, 10])
             plt.grid('on')
-            plt.savefig('images/QAM16/error_' + str(i_SNR) + '.png')
+            plt.savefig('images/error_' + str(i_SNR) + '.png')
             plt.close()
     hard_BER[i_SNR] = sum(hard_errors) / (N_packet * N_frame * b)
     soft_BER[i_SNR] = sum(soft_errors) / (N_packet * N_frame * b)
-print("Processing speed of hard demapper (us/bit): ", hard_time / (N_packet * N_frame * b)*1000000)
-print("Processing speed of soft demapper (us/bit): ", soft_time / (N_packet * N_frame * b)*1000000)
 plt.plot(SNRdBs, hard_BER, c='b', label='hard demapper')
 plt.plot(SNRdBs, soft_BER, c='r', label='soft demapper')
 plt.xlabel('SNRdB')
 plt.ylabel('BER (log scale)')
 plt.yscale('log')
 plt.grid('on')
-plt.ylim([10**-5, 1])
-plt.xlim([0, 45])
-plt.title('BER vs SNRdB in Rayleigh channel - QAM16')
+plt.title('BER vs SNRdB in Rayleigh channel')
 plt.legend()
-plt.savefig('images/QAM16/BER.png')
-plt.close()
+plt.savefig('images/BER.png')

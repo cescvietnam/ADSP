@@ -5,9 +5,12 @@ from harddemapper import harddemapper
 from softdemapper import softdemapper
 import matplotlib.pyplot as plt
 import time
+from ifft import ifft
+from fft import fft
 
-N_packet = 640000
-N_frame = 1
+
+N_packet = 10000
+N_frame = 64
 M = 16
 b = int(math.log2(M))
 SNRdBs = np.arange(0, 45, 5)
@@ -30,7 +33,11 @@ for i_SNR, SNRdB in enumerate(SNRdBs):
         msg_symbol = np.random.randint(2, size=N_frame * b)
         tx_bits = msg_symbol
         tx_sym = mapper(tx_bits, b, N_frame)
-        X = tx_sym
+        #(tx_sym)
+        #X = ifft(tx_sym)
+        X = np.fft.ifft(tx_sym, N_frame)
+        #print(tx_sym)
+        #X = tx_sym
         if channel == 'rayleigh':
             H = (np.random.standard_normal(N_frame) + np.random.standard_normal(N_frame) * 1j) / math.sqrt(2)
         elif channel == 'awgn':
@@ -38,8 +45,14 @@ for i_SNR, SNRdB in enumerate(SNRdBs):
         else:
             raise ValueError('This channel is not supported')
         N = (np.random.standard_normal(N_frame) + np.random.standard_normal(N_frame) * 1j) * sigma
+        #H = np.tile(H, N_frame)
+        #N = np.tile(N, N_frame)
+        #print(X.shape, H.shape, N.shape)
         R = H * X + N
-        rx_sym = R / H
+        Y = R / H
+        #print(R.shape, Y.shape)
+        #rx_sym = fft(Y)
+        rx_sym = np.fft.fft(Y, N_frame)
         t1 = time.time()
         hard_rx_bits = harddemapper(rx_sym)
         t2 = time.time()
@@ -78,7 +91,7 @@ for i_SNR, SNRdB in enumerate(SNRdBs):
             plt.xlim([-10, 10])
             plt.ylim([-10, 10])
             plt.grid('on')
-            plt.savefig('images/QAM16/error_' + str(i_SNR) + '.png')
+            plt.savefig('images/QAM16_OFDM/new/error_' + str(i_SNR) + '.png')
             plt.close()
     hard_BER[i_SNR] = sum(hard_errors) / (N_packet * N_frame * b)
     soft_BER[i_SNR] = sum(soft_errors) / (N_packet * N_frame * b)
@@ -92,7 +105,7 @@ plt.yscale('log')
 plt.grid('on')
 plt.ylim([10**-5, 1])
 plt.xlim([0, 45])
-plt.title('BER vs SNRdB in Rayleigh channel - QAM16')
+plt.title('BER vs SNRdB in Rayleigh channel - QAM16_OFDM')
 plt.legend()
-plt.savefig('images/QAM16/BER.png')
+plt.savefig('images/QAM16_OFDM/new/BER.png')
 plt.close()
